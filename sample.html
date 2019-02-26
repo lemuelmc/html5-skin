@@ -5,24 +5,111 @@
   <script src="//player.ooyala.com/static/v4/stable/4.30.15/core.min.js"></script>
   <script src="//player.ooyala.com/static/v4/stable/4.30.15/video-plugin/main_html5.min.js"></script>
   <script src="//player.ooyala.com/static/v4/stable/4.30.15/video-plugin/bit_wrapper.min.js"></script>
-  <script src="//player.ooyala.com/static/v4/stable/4.30.15/skin-plugin/html5-skin.min.js"></script>
-  <link rel="stylesheet" href="//player.ooyala.com/static/v4/stable/4.30.15/skin-plugin/html5-skin.min.css"/>
+  <script src="//player.ooyala.com/static/v4/stable/4.30.15/other-plugin/discovery_api.min.js"></script>
+  <script src="build/html5-skin.min.js"></script>
+  <link rel="stylesheet" href="build/html5-skin.min.css"/>
+
+<style>
+    .oo-player-container label.share-check-label {display:inline-block; padding:5px; margin:5px;}
+    .oo-player-container input.share-time-text { width:3em; }
+    .oo-player-container .share-url-text input { width:90%; }
+    .oo-linkedin {
+      display: inline-block;
+      height: 38px;
+      width: 38px;
+      margin-bottom: 12.25px;
+      margin-right: 20px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      border-radius: 6px;
+      background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDQ4IDQ4IiBpZD0iTGF5ZXJfMSIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNDggNDgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxjaXJjbGUgY3g9IjI0IiBjeT0iMjQiIGZpbGw9IiMxNjg2QjAiIHI9IjI0Ii8+PHBhdGggZD0iTTE3LjQsMzQuOWgtNC42VjIwLjFoNC42VjM0Ljl6IE0xNC45LDE4LjJMMTQuOSwxOC4yYy0xLjcsMC0yLjgtMS4xLTIuOC0yLjZjMC0xLjUsMS4xLTIuNiwyLjgtMi42ICBjMS43LDAsMi44LDEuMSwyLjgsMi42QzE3LjcsMTcuMSwxNi43LDE4LjIsMTQuOSwxOC4yeiBNMzUuOSwzNC45aC01LjN2LTcuN2MwLTItMC44LTMuNC0yLjYtMy40Yy0xLjQsMC0yLjEsMC45LTIuNSwxLjggIGMtMC4xLDAuMy0wLjEsMC44LTAuMSwxLjJ2OGgtNS4yYzAsMCwwLjEtMTMuNiwwLTE0LjhoNS4ydjIuM2MwLjMtMSwyLTIuNSw0LjYtMi41YzMuMywwLDUuOSwyLjEsNS45LDYuN1YzNC45eiIgZmlsbD0iI0ZGRkZGRiIvPjwvc3ZnPg==)
+    }
+  </style>
 </head>
 
 <body>
 <div id='container'></div>
 <script>
-  var playerParam = {
-    "pcode": "5zb2wxOlZcNCe_HVT3a6cawW298X",
-    "playerBrandingId": "26e2e3c1049c4e70ae08a242638b5c40",
-    'debug':true,
-    "skin": {
-      "config": ""
-    }
-  };
+
+  var qs= location.search ? location.search.substring(1).split('&')
+      .map(function(x){
+          return x.split('=',2).map(function(i){
+              return decodeURIComponent(i.trim()).replace('+', ' ');
+          })
+      })
+      .reduce(function(m,x){m[x[0]]=x[1];return m},{}) : {};
+
+  var startTime = qs.t ? parseInt(qs.t) : 0
+  var autoplay = qs.autoplay &&  qs.autoplay == '1' ? true : false;
+
+
   OO.ready(function() {
-    window.pp = OO.Player.create('container', 'RmZW4zcDo6KqkTIhn1LnowEZyUYn5Tb2', playerParam);
+      window.pp = OO.Player.create('container', '9la2owaDE6Wl6LUQhTwbyPrgagttMlSs', {
+          "pcode": "g1eG4xOgcjXI_3cO2J23jCHsd0hx",
+          "playerBrandingId": "a29b3758667f463dbab8bf761a43e123",
+          'debug':true,
+          "skin": {
+              "config": "config/skin.json",
+              "inline": {
+                "shareScreen": {
+                  "embed": {
+                    "source": "<iframe width='640' height='480' frameborder='0' allowfullscreen src='//player.ooyala.com/static/v4/production/skin-plugin/iframe.html?ec=<ASSET_ID>&pbid=<PLAYER_ID>&pcode=<PUBLISHER_ID>'></iframe>"
+                  }
+                }
+              },
+              "behavior":{
+                  "pause":{
+                      "title":{
+                          "show": false
+                      },
+                      "description":{
+                          "show": false
+                      }
+                  }
+              }
+          },
+          autoplay: autoplay,
+          initialTime: startTime
+      });
   });
+
+/*
+  OO.ready(function() {
+      window.pp = OO.Player.create('container', 'ttMG5iYjE6KVjeuSLMaTRj_Pt_XypHlm', {
+          "pcode": "c4bmMxOgeQcqvAvq5lSrDCzWZWyf",
+          "playerBrandingId": "cebc8e5ac9334ba7a50678a18dc9a787",
+          'debug':false,
+          "skin": {
+              "config": "//player.ooyala.com/static/v4/production/skin-plugin/skin.json",
+              "inline": {"shareScreen": {"embed": {"source": "<iframe width='640' height='480' frameborder='0' allowfullscreen src='//player.ooyala.com/static/v4/production/skin-plugin/iframe.html?ec=<ASSET_ID>&pbid=<PLAYER_ID>&pcode=<PUBLISHER_ID>'></iframe>"}}}
+          },
+          autoplay: autoplay,
+          initialTime: startTime
+      });
+  });
+  */
+
+
+  /*
+   //player.ooyala.com/static/v4/production/skin-plugin/skin.json
+  OO.ready(function() {
+      window.pp = OO.Player.create('container', 'RmZW4zcDo6KqkTIhn1LnowEZyUYn5Tb2', {
+          "pcode": "5zb2wxOlZcNCe_HVT3a6cawW298X",
+          "playerBrandingId": "26e2e3c1049c4e70ae08a242638b5c40",
+          'debug':false,
+          "skin": {
+              "config": "config/skin.json",
+              "inline": {"shareScreen": {"embed": {"source": "<iframe width='640' height='480' frameborder='0' allowfullscreen src='//player.ooyala.com/static/v4/stable/4.20.8/skin-plugin/iframe.html?ec=<ASSET_ID>&pbid=<PLAYER_ID>&pcode=<PUBLISHER_ID>'></iframe>"}}}
+          },
+          autoplay: autoplay,
+          initialTime: startTime
+      });
+  });
+   */
+
+
+
 </script>
 
 </body>
