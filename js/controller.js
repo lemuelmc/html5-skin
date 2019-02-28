@@ -644,7 +644,7 @@ module.exports = function(OO, _, $, W) {
 
     onEmbedCodeChanged: function(event, embedCode, options) {
       this.state.videoQualityOptions.availableBitrates = null;
-      this.state.videoQualityOptions.selectedBitrate = null;
+      this.state.videoQualityOptions.selectedBitrate = {bitrate: 0, height: 0, id: 'auto', width: 0};
       this.state.closedCaptionOptions.availableLanguages = null;
       this.state.closedCaptionOptions.cueText = null;
       this.state.closedCaptionsInfoCache = {};
