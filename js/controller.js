@@ -1643,10 +1643,30 @@ module.exports = function(OO, _, $, W) {
      MAIN VIDEO RELATED EVENTS
      *********************************************************************/
 
+    loadBehaviorParams: function(params) {
+      var defaultBehavior = {
+        pause: {
+          title: {
+            show: true
+          },
+          description: {
+            show: true
+          },
+          infoPanel: {
+            show: true
+          }
+        }
+      };
+
+      var behavior = Utils.sanitizeConfigData(Utils.getPropertyValue(params, 'skin.behavior'));
+      return DeepMerge(defaultBehavior, behavior, {arrayMerge: Utils.arrayDeepMerge.bind(Utils), arrayUnionBy: 'name'});
+    },
+
     // merge and load config data
     loadConfigData: function(params, settings, data, skinMetaData) {
       var localSettings = Utils.sanitizeConfigData(settings);
       var inlinePageParams = Utils.sanitizeConfigData(Utils.getPropertyValue(params, 'skin.inline'));
+      var behaviorParams = this.loadBehaviorParams(params);
       var customSkinJSON = Utils.sanitizeConfigData(data);
       var metaDataSettings = Utils.sanitizeConfigData(skinMetaData);
       var buttonArrayFusion = params.buttonMerge ? params.buttonMerge : 'replace';
@@ -1657,7 +1677,7 @@ module.exports = function(OO, _, $, W) {
         arrayUnionBy: 'name',
         buttonArrayFusion: 'prepend'
       });
-      this.state.config = DeepMerge.all([mergedMetaData, customSkinJSON, inlinePageParams, localSettings], {
+      this.state.config = DeepMerge.all([mergedMetaData, customSkinJSON, inlinePageParams, localSettings, behaviorParams], {
         arrayMerge: Utils.arrayDeepMerge.bind(Utils),
         arrayUnionBy: 'name',
         buttonArrayFusion: buttonArrayFusion

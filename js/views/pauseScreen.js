@@ -170,6 +170,9 @@ class PauseScreen extends React.Component {
   }
 
   render() {
+
+    var config = this.props.controller.state.config;
+
     // inline style for config/skin.json elements only
     const titleStyle = {
       color: this.props.skinConfig.startScreen.titleFont.color
@@ -231,12 +234,13 @@ class PauseScreen extends React.Component {
       'oo-hidden': !this.props.skinConfig.pauseScreen.showPauseIcon || this.props.pauseAnimationDisabled
     });
 
-    const titleMetadata = (
+    const titleMetadata = this.props.skinConfig.pauseScreen.showTitle && config.pause.title.show ? (
       <div className={titleClass} style={titleStyle}>
         {this.props.contentTree.title}
       </div>
-    );
-    const descriptionMetadata = (
+    ) : null;
+
+    const descriptionMetadata = this.props.skinConfig.pauseScreen.showDescription && config.pause.description.show ? (
       <div
         className={descriptionClass}
         ref={text => this.description = text}
@@ -244,7 +248,7 @@ class PauseScreen extends React.Component {
       >
         {this.state.descriptionText}
       </div>
-    );
+    ) : null;
 
     const adOverlay =
       this.props.controller.state.adOverlayUrl && this.props.controller.state.showAdOverlay ? (
@@ -306,6 +310,14 @@ class PauseScreen extends React.Component {
       'oo-info-panel-cast-bottom': skipControlsEnabled
     })
 
+    const infoPanelTemplate = (
+        <div className={infoPanelClass}>
+          {titleMetadata}
+          {descriptionMetadata}
+        </div>
+    );
+    const infoPanel = config.pause.infoPanel.show ? infoPanelTemplate : null;
+
 
     return (
       <div className="oo-state-screen oo-pause-screen">
@@ -329,10 +341,7 @@ class PauseScreen extends React.Component {
           {...this.props}
           controlBarVisible={this.props.controller.state.controlBarVisible} />
 
-        <div className={infoPanelClass}>
-          {this.props.skinConfig.pauseScreen.showTitle ? titleMetadata : null}
-          {this.props.skinConfig.pauseScreen.showDescription ? descriptionMetadata : null}
-        </div>
+        {infoPanel}
 
         <button
           ref={btn => this.pauseButton = btn}
