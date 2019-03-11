@@ -44,7 +44,11 @@ const OOBase = {
     SET_CURRENT_AUDIO: 'setCurrentAudio',
     SET_PLAYBACK_SPEED: 'setPlaybackSpeed',
     SKIN_UI_LANGUAGE: 'skinUiLanguage',
-    UI_READY: 'uiReady'
+    UI_READY: 'uiReady',
+    TOGGLE_CLOSED_CAPTIONS: 'toggleClosedCaptions',
+    AIRPLAY: {
+      AVAILABILITY_CHANGED: 'airplayAvailabilityChanged',
+    },
   },
   CONSTANTS: {
     PLAYER_TYPE: {
@@ -108,6 +112,11 @@ describe('Controller', function() {
     controller.state.mainVideoElementContainer = mockDomElement;
     controller.state.hideMultiAudioIcon = false;
     controller.state.elementId = elementId;
+    controller.state.metadata = {
+      modules: {
+        'discovery-ui': {}
+      }
+    };
     controller.skin = {
       state: {},
       setState: (newStateObj, callback) => {
@@ -203,6 +212,12 @@ describe('Controller', function() {
       controller.onChangeClosedCaptionLanguage('', 'en', { forceEnabled: true });
       expect(controller.state.closedCaptionOptions.enabled).toBe(true);
       expect(controller.state.persistentSettings.closedCaptionOptions.enabled).toBe(true);
+    });
+
+    it('should publish TOGGLE_CLOSED_CAPTIONS event on toggleClosedCaptions', () => {
+      controller.toggleClosedCaptions();
+      expect(OO.mb.publish).toHaveBeenCalledTimes(2);
+      expect(OO.mb.publish).toHaveBeenCalledWith(OO.EVENTS.TOGGLE_CLOSED_CAPTIONS);
     });
   });
 
@@ -514,6 +529,54 @@ describe('Controller', function() {
       expect(controller.state.controlBarVisible).toBe(true);
     });
 
+    describe('test customPlayPause', () => {
+      const onTogglePlayPause = jest.fn();
+
+      beforeEach(function() {
+        controller.createPluginElements();
+      });
+
+      it('should call custom function to togglePlayPause if ' +
+        'conTogglePlayPause is a function', () => {
+        controller.state.playerState = CONSTANTS.STATE.PLAYING;
+        const playerParam = {
+          onTogglePlayPause: onTogglePlayPause
+        };
+        controller.state.playerParam = playerParam;
+        controller.customPlayPause({}, 'test');
+        expect(onTogglePlayPause).toHaveBeenCalledWith({}, CONSTANTS.STATE.PLAYING);
+
+        expect(controller.mb.publish).not.toHaveBeenCalledWith('test');
+      });
+
+      it('should not publish an event if nextPublishEvent is undefined', () => {
+        controller.state.playerState = CONSTANTS.STATE.PLAYING;
+        const playerParam = {
+          onTogglePlayPause: 'test'
+        };
+        controller.state.playerParam = playerParam;
+        controller.customPlayPause({});
+
+        expect(onTogglePlayPause).not.toHaveBeenCalled();
+
+        expect(controller.mb.publish).not.toHaveBeenCalledWith('test');
+      });
+
+      it('should publish an event if onTogglePlayPause is not a function and' +
+        'nextPublishEvent is defined', () => {
+        controller.state.playerState = CONSTANTS.STATE.PLAYING;
+        const playerParam = {
+          onTogglePlayPause: 'test'
+        };
+        controller.state.playerParam = playerParam;
+        controller.customPlayPause({}, 'test');
+
+        expect(onTogglePlayPause).not.toHaveBeenCalled();
+
+        expect(controller.mb.publish).toHaveBeenCalledWith('test');
+      });
+    });
+
     it('should hide control bar when playing ads', function() {
       controller.state.controlBarVisible = true;
       controller.state.playerState = CONSTANTS.STATE.PLAYING;
@@ -568,6 +631,71 @@ describe('Controller', function() {
       expect(spy.callCount).toBe(1);
       expect(spy.calledWith('oo-blur')).toBe(true);
       spy.restore();
+    });
+
+    it('should show discovery screen on pause depending on the metadata', () => {
+      controller.state.discoveryData = {};
+      controller.skin.props.skinConfig.pauseScreen.screenToShowOnPause = 'discovery';
+      controller.state.duration = 10000;
+      controller.state.metadata.modules = {};
+
+      controller.onVideoElementFocus('event', OO.VIDEO.MAIN);
+      controller.onVcPlay('event', OO.VIDEO.MAIN);
+      controller.onPaused('event', OO.VIDEO.MAIN);
+
+      expect(controller.state.screenToShow).toBe(CONSTANTS.SCREEN.PAUSE_SCREEN);
+      controller.state.metadata.modules = {
+        'discovery-ui': {}
+      };
+
+      controller.onVideoElementFocus('event', OO.VIDEO.MAIN);
+      controller.onVcPlay('event', OO.VIDEO.MAIN);
+      controller.onPaused('event', OO.VIDEO.MAIN);
+      expect(controller.state.screenToShow).toBe(CONSTANTS.SCREEN.DISCOVERY_SCREEN);
+    });
+
+    it('should show discovery screen on played depending on the metadata', () => {
+      controller.state.discoveryData = {};
+      controller.skin.props.skinConfig.pauseScreen.screenToShowOnPause = 'discovery';
+      controller.state.duration = 10000;
+      controller.state.metadata.modules = {};
+
+      controller.onVideoElementFocus('event', OO.VIDEO.MAIN);
+      controller.onVcPlay('event', OO.VIDEO.MAIN);
+      controller.onPlayed('event', OO.VIDEO.MAIN);
+
+      expect(controller.state.screenToShow).toBe(CONSTANTS.SCREEN.END_SCREEN);
+      controller.state.metadata.modules = {
+        'discovery-ui': {}
+      };
+
+      controller.onVideoElementFocus('event', OO.VIDEO.MAIN);
+      controller.onVcPlay('event', OO.VIDEO.MAIN);
+      controller.onPlayed('event', OO.VIDEO.MAIN);
+      expect(controller.state.screenToShow).toBe(CONSTANTS.SCREEN.DISCOVERY_SCREEN);
+    });
+
+    it('should show discovery screen on webkitEndFullscreen depending on the metadata', () => {
+      controller.state.discoveryData = {};
+      controller.skin.props.skinConfig.pauseScreen.screenToShowOnPause = 'discovery';
+      controller.state.duration = 10000;
+      controller.state.metadata.modules = {};
+
+      controller.onVideoElementFocus('event', OO.VIDEO.MAIN);
+      controller.onVcPlay('event', OO.VIDEO.MAIN);
+      controller.onPlayed('event', OO.VIDEO.MAIN);
+      controller.webkitEndFullscreen('event', OO.VIDEO.MAIN);
+
+      expect(controller.state.screenToShow).toBe(CONSTANTS.SCREEN.END_SCREEN);
+      controller.state.metadata.modules = {
+        'discovery-ui': {}
+      };
+
+      controller.onVideoElementFocus('event', OO.VIDEO.MAIN);
+      controller.onVcPlay('event', OO.VIDEO.MAIN);
+      controller.onPlayed('event', OO.VIDEO.MAIN);
+      controller.webkitEndFullscreen('event', OO.VIDEO.MAIN);
+      expect(controller.state.screenToShow).toBe(CONSTANTS.SCREEN.DISCOVERY_SCREEN);
     });
   });
 
@@ -1376,13 +1504,16 @@ describe('Controller', function() {
     });
 
     it('test that the chosen ui language is sent on the message bus', function() {
+      OO_setWindowNavigatorProperty('language', undefined);
       controller.loadConfigData('customerUi', {"localization":{"defaultLanguage":"es"}}, {}, {}, {});
       expect(spyPublish.withArgs(OO.EVENTS.SKIN_UI_LANGUAGE, sinon.match("es")).calledOnce).toBe(true);
     });
 
     it('test that language defaults to english if no defaultLanguage is specified', function() {
+      OO_setWindowNavigatorProperty('language', 'en');
+      controller.state.playerParam = {...controller.state.playerParam, "useBrowserLanguage": true};
       controller.loadConfigData('customerUi', {"localization":{"defaultLanguage":""}}, {}, {}, {});
-      expect(spyPublish.withArgs(OO.EVENTS.SKIN_UI_LANGUAGE, sinon.match("en")).calledOnce).toBe(true);
+      expect(spyPublish.withArgs(OO.EVENTS.SKIN_UI_LANGUAGE, sinon.match('en')).calledOnce).toBe(true);
     });
   });
 
@@ -1617,6 +1748,7 @@ describe('Controller', function() {
 
   describe('Chromecast button', () => {
     it('Should enable the chromecast button at state when appId is valid and enable it is true', () => {
+      OO.isSSL = true;
       controller.loadConfigData({
         chromecast: {
           enable: true,
@@ -1719,6 +1851,19 @@ describe('Controller', function() {
       expect(controller.state.cast.showButton).toBe(false);
     });
 
+  });
+
+  describe('AirPlay button', () => {
+
+    it('Should set the airPlay availability state', () => {
+      controller.onAirplayAvailabilityChanged(OO.EVENTS.AIRPLAY.AVAILABILITY_CHANGED, true);
+      expect(controller.state.airplay.available).toBe(true);
+    });
+    
+    it('Should not set the airPlay availability state', () => {
+      controller.onAirplayAvailabilityChanged(OO.EVENTS.AIRPLAY.AVAILABILITY_CHANGED, false);
+      expect(controller.state.airplay.available).toBe(false);
+    });
   });
 
   it('that we show playing screen when ads have finished playing and end screen if the video has finished', function() {

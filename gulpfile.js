@@ -25,7 +25,6 @@ var gulp        = require('gulp'),
 var babelify = require('babelify');
 
 var path = {
-  scripts: ['./js/**/*.js'],
   sass: ['./scss/**/*.scss'],
   pages: ['./iframe.html']
 };
@@ -45,7 +44,8 @@ function buildJS(file, hash, watch, ugly, sourcemap, debug, externalReact) {
     debug: debug,
     transform: [babelify, bulkify],
     cache: {},
-    packageCache: {}
+    packageCache: {},
+    extensions: [".js",".jsx"]
   };
   var bundler = watch ? watchify(browserify(props)) : browserify(props);
 

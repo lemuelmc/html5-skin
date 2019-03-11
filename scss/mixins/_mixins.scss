@@ -103,6 +103,12 @@
         #{$property}: $value;
 }
 
+@mixin hide-button() {
+  background-color: transparent;
+  border: 0;
+  outline: none;
+}
+
 // base style for close buttons
 @mixin close($x, $y) {
   position: absolute;
@@ -110,10 +116,8 @@
   opacity: 0.6;
   line-height: 1;
   padding: 0;
-  border: 0;
-  outline: none;
-  background: transparent;
   -webkit-appearance: none;
+  @include hide-button();
   @include highlight();
 
   // increase selectable area, helps with mobile
@@ -264,6 +268,14 @@
   -webkit-flex: $values;
   -ms-flex: $values;
   flex: $values;
+}
+
+// Flex shrink {Number}: applies to flex item shrink factor
+@mixin flex-shrink($shrink) {
+  -webkit-flex-shrink: $shrink;
+  -moz-flex-shrink: $shrink;
+  -ms-flex-shrink: $shrink;
+  flex-shrink: $shrink;
 }
 
 @mixin flex-center-children($flex-direction) {

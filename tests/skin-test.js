@@ -10,7 +10,6 @@ jest.dontMock('../js/components/playbackSpeedPanel');
 jest.dontMock('../js/components/utils');
 jest.dontMock('../js/components/higher-order/accessibleMenu');
 jest.dontMock('../js/components/higher-order/preserveKeyboardFocus');
-jest.dontMock('../js/mixins/responsiveManagerMixin');
 jest.dontMock('screenfull');
 
 var React = require('react');
@@ -85,6 +84,7 @@ var skinControllerMock = {
   rewindOrRequestPreviousVideo: () => {},
   requestNextVideo: () => {},
   togglePlayPause: () => {},
+  togglePopover: () => {},
   onTouchMove: () => {}
 };
 
@@ -328,17 +328,23 @@ describe('Methods tests', function() {
   });
 
   it('getPlayheadTime should return the current playhead of the video', () => {
+    skin.state.duration = Infinity;
     skin.state.currentPlayhead = 120;
+    expect(skin.getPlayheadTime()).toBe("--:--");
+    skin.state.duration = 12000;
     expect(skin.getPlayheadTime()).toBe("02:00");
 
     skin.state.currentPlayhead = 7200;
     expect(skin.getPlayheadTime()).toBe("02:00:00");
 
     skin.state.currentPlayhead = null;
-    expect(skin.getPlayheadTime()).toBe(null);
+    expect(skin.getPlayheadTime()).toBe('--:--');
+
+    skin.state.currentPlayhead = Infinity;
+    expect(skin.getPlayheadTime()).toBe('--:--');
 
     delete skin.state.currentPlayhead;
-    expect(skin.getPlayheadTime()).toBe(null);
+    expect(skin.getPlayheadTime()).toBe('--:--');
 
     skin.state.isLiveStream = true;
     skin.state.currentPlayhead = 120;
