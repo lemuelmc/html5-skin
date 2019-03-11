@@ -80,8 +80,8 @@
       "color": "white",
       "opacity": 1
     },
-    "showTitle": true,
-    "showDescription": true,
+    "showTitle": false,
+    "showDescription": false,
     "titleFont": {
       "color": "white"
     },
@@ -98,8 +98,8 @@
       "color": "white",
       "opacity": 1
     },
-    "showTitle": true,
-    "showDescription": true,
+    "showTitle": false,
+    "showDescription": false,
     "infoPanelPosition": "topLeft",
     "screenToShowOnPause": "default"
   },
@@ -294,7 +294,6 @@
       {"name":"share", "location":"controlBar", "whenDoesNotFit":"moveToMoreOptions", "minWidth":45 },
       {"name":"discovery", "location":"controlBar", "whenDoesNotFit":"moveToMoreOptions", "minWidth":45 },
       {"name":"closedCaption", "location":"controlBar", "whenDoesNotFit":"moveToMoreOptions", "minWidth":45 },
-      {"name":"quality", "location":"controlBar", "whenDoesNotFit":"moveToMoreOptions", "minWidth":45 },
       {"name":"logo", "location":"controlBar", "whenDoesNotFit":"keep", "minWidth":125 },
       {"name":"stereoscopic", "location":"controlBar", "whenDoesNotFit":"keep", "minWidth":45 },
       {"name":"fullscreen", "location":"controlBar", "whenDoesNotFit":"keep", "minWidth":45 },
