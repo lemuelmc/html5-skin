@@ -220,6 +220,11 @@ function controller(OO, _, $) {
         isReceiver: false,
       },
 
+      airplay: {
+        available: false,
+        statusIcon: CONSTANTS.AIRPLAY_STATE.DISCONNECTED,
+      },
+
       audioOnly: false,
     };
 
@@ -289,6 +294,21 @@ function controller(OO, _, $) {
         _.bind(this.onChromecastStartCast, this),
       );
       this.mb.subscribe(OO.EVENTS.CHROMECAST_END_CAST, 'customerUi', _.bind(this.onChromecastEndCast, this));
+      this.mb.subscribe(
+        OO.EVENTS.AIRPLAY.AVAILABILITY_CHANGED,
+        'customerUi',
+        this.onAirplayAvailabilityChanged.bind(this)
+      );
+      this.mb.subscribe(
+        OO.EVENTS.AIRPLAY.CONNECTION_CHANGED,
+        'customerUi',
+        this.onAirplayConnectionChanged.bind(this)
+      );
+      this.mb.subscribe(
+        OO.EVENTS.AIRPLAY.SESSION_RESUMED,
+        'customerUi',
+        this.onAirplaySessionResumed.bind(this)
+      );
       this.state.isPlaybackReadySubscribed = true;
     },
 
@@ -505,10 +525,16 @@ function controller(OO, _, $) {
 
     isChromecastEnabled(params) {
       const chromecastConfig = params.chromecast;
+      const chromecastEnabled = !!Utils.getPropertyValue(chromecastConfig, 'enable', false);
       const appId = Utils.getPropertyValue(chromecastConfig, 'appId', '');
-      return typeof appId === 'string'
-        && appId !== ''
-        && !!Utils.getPropertyValue(chromecastConfig, 'enable', false);
+      const appIdValid = typeof appId === 'string' && appId !== '';
+      if (chromecastEnabled && !OO.isSSL) {
+        // eslint-disable-next-line no-console
+        console.warn('Casting is enabled but impossible for http hosted pages.'
+        + 'Serve the page through https for casting');
+        return false;
+      }
+      return appIdValid && chromecastEnabled;
     },
 
     onChromecastStartCast(event, deviceName) {
@@ -523,50 +549,26 @@ function controller(OO, _, $) {
       this.renderSkin({ cast: { connected: false, device: '' } });
     },
 
-    addAirPlayListeners(videoElement) {
-      if (!window.WebKitPlaybackTargetAvailabilityEvent) {
-        return;
-      }
-      const airPlayState = window.sessionStorage.getItem('airPlayState');
-      this.airPlayWasConnected = airPlayState === CONSTANTS.AIRPLAY_STATE.CONNECTED;
-      if (this.airPlayWasConnected || this.state.isAirplayAllowed) {
-        videoElement.addEventListener(
-          'webkitplaybacktargetavailabilitychanged',
-          _.bind(this.airPlayListener, this)
-        );
-
-        // This event fires when a media element starts or stops AirPlay playback
-        videoElement.addEventListener(
-          'webkitcurrentplaybacktargetiswirelesschanged',
-          _.bind(this.toggleAirPlayIcon, this)
-        );
-      }
-    },
-
-    airPlayListener(event) {
-      this.state.isAirPlayAvailable = event.availability === 'available';
+    onAirplayAvailabilityChanged(eventName, isAvailable) {
+      this.state.airplay.available = isAvailable;
       this.renderSkin();
     },
 
-    toggleAirPlayIcon() {
-      if (!this.state.airPlayStatusIcon) {
-        this.state.airPlayStatusIcon = CONSTANTS.AIRPLAY_STATE.DISCONNECTED;
-        this.renderSkin();
-        return;
-      }
-      if (this.airPlayWasConnected) {
-        const videoElement = this.state.mainVideoElement;
-        // We need timeout to display the target picker checkbox correctly in MacOS
-        setTimeout(() => {
-          videoElement.webkitShowPlaybackTargetPicker();
-        });
-        this.airPlayWasConnected = false;
-      }
-      this.state.airPlayStatusIcon = this.state.airPlayStatusIcon === CONSTANTS.AIRPLAY_STATE.DISCONNECTED
-        ? CONSTANTS.AIRPLAY_STATE.CONNECTED
-        : CONSTANTS.AIRPLAY_STATE.DISCONNECTED;
-      window.sessionStorage.setItem('airPlayState', this.state.airPlayStatusIcon);
+    onAirplayConnectionChanged(eventName, isConnected) {
+      const { CONNECTED, DISCONNECTED } = CONSTANTS.AIRPLAY_STATE;
+      this.state.airplay.statusIcon = isConnected ? CONNECTED : DISCONNECTED;
       this.renderSkin();
+    },
+
+    onAirplaySessionResumed() {
+      this.state.airplay.statusIcon = CONSTANTS.AIRPLAY_STATE.CONNECTED;
+      this.renderSkin();
+      // emulate airplay button click to show targetPicker
+      this.onAirplayButtonClicked();
+    },
+
+    onAirplayButtonClicked() {
+      this.mb.publish(OO.EVENTS.AIRPLAY.BUTTON_CLICKED);
     },
 
     /**
@@ -644,9 +646,6 @@ function controller(OO, _, $) {
       // add loadedmetadata event listener to main video element
       if (videoElement) {
         videoElement.addEventListener('loadedmetadata', this.metaDataLoaded.bind(this));
-
-        // add the AirPlay event listeners
-        this.addAirPlayListeners(videoElement);
       }
 
       if (Utils.isIE10()) {

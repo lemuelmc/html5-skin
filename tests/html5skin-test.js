@@ -46,6 +46,9 @@ const OOBase = {
     SKIN_UI_LANGUAGE: 'skinUiLanguage',
     UI_READY: 'uiReady',
     TOGGLE_CLOSED_CAPTIONS: 'toggleClosedCaptions',
+    AIRPLAY: {
+      AVAILABILITY_CHANGED: 'airplayAvailabilityChanged',
+    },
   },
   CONSTANTS: {
     PLAYER_TYPE: {
@@ -1745,6 +1748,7 @@ describe('Controller', function() {
 
   describe('Chromecast button', () => {
     it('Should enable the chromecast button at state when appId is valid and enable it is true', () => {
+      OO.isSSL = true;
       controller.loadConfigData({
         chromecast: {
           enable: true,
@@ -1850,25 +1854,15 @@ describe('Controller', function() {
   });
 
   describe('AirPlay button', () => {
-    beforeAll(() => {
-      window.WebKitPlaybackTargetAvailabilityEvent = true;
-    });
 
     it('Should set the airPlay availability state', () => {
-      controller.airPlayListener({
-        availability: 'available'
-      });
-      expect(controller.state.isAirPlayAvailable).toBe(true);
+      controller.onAirplayAvailabilityChanged(OO.EVENTS.AIRPLAY.AVAILABILITY_CHANGED, true);
+      expect(controller.state.airplay.available).toBe(true);
     });
-
+    
     it('Should not set the airPlay availability state', () => {
-      controller.airPlayListener({
-        availability: 'not-available'
-      });
-      expect(controller.state.isAirPlayAvailable).toBe(false);
-    });
-    afterAll(() => {
-      window.WebKitPlaybackTargetAvailabilityEvent = false;
+      controller.onAirplayAvailabilityChanged(OO.EVENTS.AIRPLAY.AVAILABILITY_CHANGED, false);
+      expect(controller.state.airplay.available).toBe(false);
     });
   });
 
