@@ -1127,7 +1127,7 @@ describe('ControlBar', function() {
     baseMockProps.skinConfig.buttons.desktopContent = [
       {'name':'logo', 'location':'controlBar', 'whenDoesNotFit':'keep', 'minWidth':130 }
     ];
-    baseMockProps.skinConfig.controlBar.logo.imageResource.url = '//player.ooyala.com/static/v4/stable/4.30.15/skin-plugin/assets/images/ooyala-logo.svg';
+    baseMockProps.skinConfig.controlBar.logo.imageResource.url = '//player.ooyala.com/static/v4/stable/4.31.17/skin-plugin/assets/images/ooyala-logo.svg';
     baseMockProps.skinConfig.controlBar.logo.clickUrl = 'http://www.ooyala.com';
 
     var wrapper = Enzyme.mount(getControlBar(CONSTANTS.STATE.PLAYING, 100));
@@ -1250,13 +1250,31 @@ describe('ControlBar', function() {
       expect(wrapper.find('.oo-skip-controls').length).toBe(1);
     });
 
-    it('tests rendering audio only buttons', () => {
-      baseMockProps.skinConfig.buttons.audioOnly = [
-        {"name":"skipControls", "location":"controlBar", "whenDoesNotFit":"keep", "minWidth":200 }
-      ];
-      baseMockProps.audioOnly = true;
-      var wrapper = Enzyme.mount(getControlBar());
-      expect(wrapper.find('.oo-skip-controls').length).toBe(1);
+    describe('AudioOnly', () => {
+      let audioOnlyConf;
+      beforeEach(() => {
+        audioOnlyConf = baseMockProps.skinConfig.buttons.audioOnly;
+      });
+      afterEach(() => {
+        baseMockProps.skinConfig.buttons.audioOnly = audioOnlyConf;
+      });
+      it('tests rendering audio only buttons', () => {
+        baseMockProps.skinConfig.buttons.audioOnly.desktop = [
+          {"name":"skipControls", "location":"controlBar", "whenDoesNotFit":"keep", "minWidth":200 }
+        ];
+        baseMockProps.audioOnly = true;
+        const wrapper = Enzyme.mount(getControlBar());
+        expect(wrapper.find('.oo-skip-controls').length).toBe(1);
+      });
+
+      it('function getAudioControlsConfig should not get crash if no desktop icons array', () => {
+        baseMockProps.skinConfig.buttons.audioOnly = null;
+        baseMockProps.audioOnly = true;
+        const wrapper = Enzyme.mount(getControlBar());
+        const composedComponent = wrapper.instance().composedComponentRef.current;
+        const audioOnlyIconsList = composedComponent.getAudioControlsConfig();
+        expect(audioOnlyIconsList).toEqual([]);
+      });
     });
 
     it('tests row format for audio only', () => {
@@ -1297,17 +1315,33 @@ describe('ControlBar', function() {
   });
 
   describe('Chromecast button', ()=> {
-    it('Should not show chromecast button when player param not exist', () => {
+    it('Should not show chromecast button when player param does not exist', () => {
       var wrapper = Enzyme.mount(getControlBar());
-      var chromecastBtn = wrapper.find(".oo-cast");
+      var chromecastBtn = wrapper.find('.oo-cast');
       expect(chromecastBtn.length).toBe(0);
     });
 
-    it('Should not show chromecast button when player param not exist', () => {
+    it('Should show chromecast button when player param exists', () => {
       baseMockController.state.cast.showButton = true;
       var wrapper = Enzyme.mount(getControlBar());
-      var chromecastBtn = wrapper.find(".oo-cast");
+      var chromecastBtn = wrapper.find('.oo-cast');
       expect(chromecastBtn.length).toBe(1);
     });
   });
+
+  describe('AirPlay button', () => {
+    it('Should show airPlay button when the airPlay is available', () => {
+      baseMockController.state.isAirPlayAvailable = true;
+      const wrapper = Enzyme.mount(getControlBar());
+      const airPlayBtn = wrapper.find('.oo-airplay').hostNodes();
+      expect(airPlayBtn.length).toBe(1);
+    });
+
+    it('Should not show airPlay button when the airPlay is not available', () => {
+      baseMockController.state.isAirPlayAvailable = false;
+      const wrapper = Enzyme.mount(getControlBar());
+      const airPlayBtn = wrapper.find('.oo-airplay').hostNodes();
+      expect(airPlayBtn.length).toBe(0);
+    })
+  })
 });

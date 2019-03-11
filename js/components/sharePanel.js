@@ -7,16 +7,10 @@
  * @class SharePanel
  * @constructor
  */
-var React = require('react');
-
-    
-var ClassNames = require('classnames');
-
-    
-var Utils = require('./utils');
-
-    
-var CONSTANTS = require('../constants/constants');
+var React = require('react'),
+    ClassNames = require('classnames'),
+    Utils = require('./utils'),
+    CONSTANTS = require('../constants/constants');
 var createReactClass = require('create-react-class');
 var _ = require('underscore');
 
@@ -270,17 +264,15 @@ var SharePanel = createReactClass({
     });
 
     var shareString = Utils.getLocalizedString(
-      this.props.language,
-      CONSTANTS.SKIN_TEXT.SHARE,
-      this.props.localizableStrings
-    );
-
-        
-    var embedString = Utils.getLocalizedString(
-      this.props.language,
-      CONSTANTS.SKIN_TEXT.EMBED,
-      this.props.localizableStrings
-    );
+        this.props.language,
+        CONSTANTS.SKIN_TEXT.SHARE,
+        this.props.localizableStrings
+      ),
+        embedString = Utils.getLocalizedString(
+        this.props.language,
+        CONSTANTS.SKIN_TEXT.EMBED,
+        this.props.localizableStrings
+      );
 
     return (
       <div className="oo-content-panel oo-share-panel">

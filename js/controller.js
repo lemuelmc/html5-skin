@@ -31,7 +31,7 @@ module.exports = function(OO, _, $, W) {
 
   if (OO.publicApi && OO.publicApi.VERSION) {
     // This variable gets filled in by the build script
-    OO.publicApi.VERSION.skin = {"releaseVersion": "4.30.15", "rev": "<SKIN_REV>"};
+    OO.publicApi.VERSION.skin = {"releaseVersion": "4.31.17", "rev": "<SKIN_REV>"};
   }
 
   var Html5Skin = function(mb, id) {
@@ -316,6 +316,7 @@ module.exports = function(OO, _, $, W) {
           'customerUi',
           _.bind(this.onChangeClosedCaptionLanguage, this)
         );
+        this.mb.subscribe(OO.EVENTS.TOGGLE_CLOSED_CAPTIONS, 'customerUi', this.toggleClosedCaptionEnabled.bind(this));
         this.mb.subscribe(OO.EVENTS.VOLUME_CHANGED, 'customerUi', _.bind(this.onVolumeChanged, this));
         this.mb.subscribe(OO.EVENTS.MUTE_STATE_CHANGED, 'customerUi', _.bind(this.onMuteStateChanged, this));
         this.mb.subscribe(
@@ -383,7 +384,7 @@ module.exports = function(OO, _, $, W) {
     },
 
     externalPluginSubscription: function() {
-      if (OO.EVENTS.DISCOVERY_API) {
+      if (OO.EVENTS.DISCOVERY_API && OO.EVENTS.DISCOVERY_API.RELATED_VIDEOS_FETCHED) {
         this.mb.subscribe(
           OO.EVENTS.DISCOVERY_API.RELATED_VIDEOS_FETCHED,
           'customerUi',
@@ -491,6 +492,29 @@ module.exports = function(OO, _, $, W) {
       this.renderSkin({cast: {connected:false, device: ""}});
     },
 
+    airPlayListener: function(event) {
+      this.state.isAirPlayAvailable = event.availability === 'available';
+      this.renderSkin();
+    },
+
+    toggleAirPlayIcon: function(event) {
+      if (!this.state.airPlayStatusIcon) {
+        const airPlayState = window.sessionStorage.getItem('airPlayState');
+        if (airPlayState === CONSTANTS.AIRPLAY_STATE.CONNECTED) {
+          this.showControlBar();
+          this.state.mainVideoElement.webkitShowPlaybackTargetPicker();
+        }
+        this.state.airPlayStatusIcon = CONSTANTS.AIRPLAY_STATE.DISCONNECTED;
+        this.renderSkin();
+        return;
+      }
+      this.state.airPlayStatusIcon = this.state.airPlayStatusIcon === CONSTANTS.AIRPLAY_STATE.DISCONNECTED ?
+        CONSTANTS.AIRPLAY_STATE.CONNECTED :
+        CONSTANTS.AIRPLAY_STATE.DISCONNECTED;
+      window.sessionStorage.setItem('airPlayState', this.state.airPlayStatusIcon);
+      this.renderSkin();
+    },
+
     /**
      * Set style "touch-action: none" only for video 360 on mobile devices
      * see details: https://stackoverflow.com/questions/42206645/konvajs-unable-to-preventdefault-inside-passive-event-listener-due-to-target-be
@@ -567,6 +591,16 @@ module.exports = function(OO, _, $, W) {
       // add loadedmetadata event listener to main video element
       if (videoElement) {
         videoElement.addEventListener('loadedmetadata', this.metaDataLoaded.bind(this));
+
+        // add the AirPlay TargetAvailability event listener
+        if (window.WebKitPlaybackTargetAvailabilityEvent) {
+          videoElement.addEventListener('webkitplaybacktargetavailabilitychanged',
+            _.bind(this.airPlayListener, this));
+
+          //This event fires when a media element starts or stops AirPlay playback
+          videoElement.addEventListener('webkitcurrentplaybacktargetiswirelesschanged',
+            _.bind(this.toggleAirPlayIcon, this));
+        }
       }
 
       if (Utils.isIE10()) {
@@ -644,7 +678,7 @@ module.exports = function(OO, _, $, W) {
 
     onEmbedCodeChanged: function(event, embedCode, options) {
       this.state.videoQualityOptions.availableBitrates = null;
-      this.state.videoQualityOptions.selectedBitrate = {bitrate: 0, height: 0, id: 'auto', width: 0};
+      this.state.videoQualityOptions.selectedBitrate = null;
       this.state.closedCaptionOptions.availableLanguages = null;
       this.state.closedCaptionOptions.cueText = null;
       this.state.closedCaptionsInfoCache = {};
@@ -1059,7 +1093,7 @@ module.exports = function(OO, _, $, W) {
     },
 
     onPlayed: function() {
-      var duration = this.state.mainVideoDuration;
+      var duration = this.state.mainVideoDuration || this.state.contentTree.duration / 1000;
       this.state.duration = duration;
       this.state.playerState = CONSTANTS.STATE.END;
 
@@ -1712,7 +1746,8 @@ module.exports = function(OO, _, $, W) {
         this.state.config.discoveryScreen.countDownTime
       );
 
-      var uiLanguage = Utils.getLanguageToUse(this.state.config);
+      const { config, playerParam } = this.state;
+      const uiLanguage = Utils.getLanguageToUse(config, playerParam);
       this.mb.publish(OO.EVENTS.SKIN_UI_LANGUAGE, uiLanguage);
 
       this.state.audioOnly = params.playerType === OO.CONSTANTS.PLAYER_TYPE.AUDIO;
@@ -2177,7 +2212,7 @@ module.exports = function(OO, _, $, W) {
         this.mb.unsubscribe(OO.EVENTS.SHOW_AD_CONTROLS, 'customerUi');
         this.mb.unsubscribe(OO.EVENTS.SHOW_AD_MARQUEE, 'customerUi');
 
-        if (OO.EVENTS.DISCOVERY_API) {
+        if (OO.EVENTS.DISCOVERY_API && OO.EVENTS.DISCOVERY_API.RELATED_VIDEOS_FETCHED) {
           this.mb.unsubscribe(OO.EVENTS.DISCOVERY_API.RELATED_VIDEOS_FETCHED, 'customerUi');
         }
       }
@@ -2712,6 +2747,10 @@ module.exports = function(OO, _, $, W) {
         this.state.mainVideoInnerWrapper.removeClass('oo-anamorphic');
         OO.log('Anamorphic video fix: OFF');
       }
+    },
+
+    toggleClosedCaptions: function() {
+      this.mb.publish(OO.EVENTS.TOGGLE_CLOSED_CAPTIONS);
     },
 
     toggleClosedCaptionEnabled: function() {

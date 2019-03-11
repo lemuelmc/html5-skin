@@ -3,6 +3,11 @@ var MACROS = require('./macros');
  CONSTANT
  *********************************************************************/
 var CONSTANTS = {
+  AIRPLAY_STATE: {
+    CONNECTED: 'airPlay-connected',
+    DISCONNECTED: 'airPlay-disconnected'
+  },
+
   STATE: {
     START: 'start',
     PLAYING: 'playing',
@@ -131,7 +136,8 @@ var CONSTANTS = {
     NO_LINGUISTIC_CONTENT: 'No linguistic content',
     UNCODED_LANGUAGES: 'Uncoded languages',
     MULTIPLE_LANGUAGES: 'Multiple languages',
-    CHROMECAST: 'Chromecast'
+    CHROMECAST: 'Chromecast',
+    AIRPLAY: 'Airplay'
   },
 
   ARIA_LABELS: {
@@ -180,7 +186,8 @@ var CONSTANTS = {
     PLAYBACK_SPEED: MACROS.RATE + 'x Playback Speed',
     PLAYBACK_SPEED_OPTION: 'Speed',
     NORMAL_SPEED: 'Normal Speed',
-    CHROMECAST: 'Chromecast'
+    CHROMECAST: 'Chromecast',
+    AIRPLAY: 'Airplay'
   },
 
   CONTROL_BAR_KEYS: {
@@ -200,7 +207,8 @@ var CONSTANTS = {
     FULLSCREEN: 'fullscreen',
     LOGO: 'logo',
     CHROMECAST: 'chromecast',
-    SKIP_CONTROLS: 'skipControls'
+    SKIP_CONTROLS: 'skipControls',
+    AIRPLAY: 'airPlay'
   },
 
   ARIA_ROLES: {
