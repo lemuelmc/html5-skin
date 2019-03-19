@@ -227,7 +227,7 @@
   "controlBar": {
     "enabled": true,
     "volumeControl": {
-      "color": ""
+      "color": "#ff0000"
     },
     "iconStyle": {
       "active": {
@@ -258,7 +258,7 @@
     "scrubberBar": {
       "backgroundColor": "rgba(175,175,175,0.5)",
       "bufferedColor": "rgba(175,175,175,0.7)",
-      "playedColor": "",
+      "playedColor": "rgba(255,0,0,1)",
       "scrubberHandleColor": "rgba(67,137,255,1)",
       "scrubberHandleBorderColor": "rgba(255,255,255,1)",
       "thumbnailPreview": true

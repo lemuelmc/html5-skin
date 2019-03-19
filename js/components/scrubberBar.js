@@ -469,7 +469,7 @@ ScrubberBar.defaultProps = {
       scrubberBar: {
         backgroundColor: 'rgba(5,175,175,1)',
         bufferedColor: 'rgba(127,5,127,1)',
-        playedColor: 'rgba(67,137,5,1)'
+        playedColor: 'rgba(255,0,0,1)'
       },
       adScrubberBar: {
         backgroundColor: 'rgba(175,175,5,1)',

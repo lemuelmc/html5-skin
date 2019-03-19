@@ -41,7 +41,7 @@ a.oo-volume-bar {
 }
 
 .oo-on {
-  background-color: rgba($blue-light, 1.0);
+  background-color: rgba($red-light, 1.0);
   height: 17px;
   padding-bottom: 0px;
   margin-bottom: 4px;
@@ -52,7 +52,7 @@ a.oo-volume-bar {
 }
 
 .oo-volume:hover .oo-volume-bar.oo-on {
-  background-color: $blue-light;
+  background-color: $red-light;
 }
 
 .oo-volume-slider {

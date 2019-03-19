@@ -229,11 +229,11 @@ VolumeControls.propTypes = {
 VolumeControls.defaultProps = {
   skinConfig: {
     general: {
-      accentColor: '#448aff'
+      accentColor: '#ff0000'
     },
     controlBar: {
       volumeControl: {
-        color: '#448aff'
+        color: '#ff0000'
       }
     }
   }
