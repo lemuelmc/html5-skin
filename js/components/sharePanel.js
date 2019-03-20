@@ -15,7 +15,7 @@ var createReactClass = require('create-react-class');
 var _ = require('underscore');
 
 var SharePanel = createReactClass({
-  tabs: { SHARE: 'social', EMBED: 'embed' },
+  tabs: { SHARE: 'social'},
 
   getInitialState: function() {
     var shareContent = Utils.getPropertyValue(this.props.skinConfig, 'shareScreen.shareContent');
@@ -75,10 +75,12 @@ var SharePanel = createReactClass({
     }
 
     var params = {userPlayHeadTime: totalSeconds, shareAtTime: true};
+
     this.setState(params);
   },
 
   getActivePanel: function() {
+    
     var initialTime = isFinite(parseInt(this.props.currentPlayhead)) ? parseInt(this.props.currentPlayhead) : 0;
     if (this.state.userPlayHeadTime) {
       initialTime = parseInt(this.state.userPlayHeadTime);
@@ -174,10 +176,8 @@ var SharePanel = createReactClass({
         if (str.length > 0) str += '&';
         str += encodeURIComponent(k) + '=' + encodeURIComponent(qs[k]);
 	  }
-      console.info(['getShareLocation',urlparser.href]);
 	  return (urlparser.search ? urlparser.href.substring(0, urlparser.href.indexOf('?')) : urlparser.href) + '?' + str;
     } else {
-      console.info(['getShareLocation',location.href]);
 	  return location.href;
     }
   },
