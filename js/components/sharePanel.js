@@ -35,7 +35,10 @@ var SharePanel = createReactClass({
 
     return {
       activeTab: activeTab,
-      hasError: false
+      hasError: false,
+      currentPlayhead: 0,
+      playheadTime: ''
+
     };
   },
   handleCheckboxClick: function(event) {
@@ -80,7 +83,7 @@ var SharePanel = createReactClass({
   },
 
   getActivePanel: function() {
-    
+
     var initialTime = isFinite(parseInt(this.props.currentPlayhead)) ? parseInt(this.props.currentPlayhead) : 0;
     if (this.state.userPlayHeadTime) {
       initialTime = parseInt(this.state.userPlayHeadTime);
@@ -291,6 +294,8 @@ var SharePanel = createReactClass({
 });
 
 SharePanel.defaultProps = {
+  currentPlayhead: null,
+  playheadTime: null,
   contentTree: {
     title: ''
   }

@@ -525,6 +525,8 @@ const Skin = createReactClass({
                   assetId={this.state.assetId}
                   playerParam={this.state.playerParam}
                   contentTree={this.state.contentTree}
+                  currentPlayhead={this.state.currentPlayhead}
+                  playheadTime={this.getPlayheadTime()}
                 />
               </ContentScreen>
             );
