@@ -45,9 +45,11 @@
   var startTime = qs.t ? parseInt(qs.t) : 0
   var autoplay = qs.autoplay &&  qs.autoplay == '1' ? true : false;
 
+  // standard video: 9la2owaDE6Wl6LUQhTwbyPrgagttMlSs
+  // portrait sample: 5ncXlqaDE6isThiImb_jjcI8PoJQJ7rA
 
   OO.ready(function() {
-      window.pp = OO.Player.create('container', '9la2owaDE6Wl6LUQhTwbyPrgagttMlSs', {
+      window.pp = OO.Player.create('container', '5ncXlqaDE6isThiImb_jjcI8PoJQJ7rA', {
           "pcode": "g1eG4xOgcjXI_3cO2J23jCHsd0hx",
           "playerBrandingId": "a29b3758667f463dbab8bf761a43e123",
           'debug':true,
@@ -58,7 +60,8 @@
                   "embed": {
                     "source": "<iframe width='640' height='480' frameborder='0' allowfullscreen src='//player.ooyala.com/static/v4/production/skin-plugin/iframe.html?ec=<ASSET_ID>&pbid=<PLAYER_ID>&pcode=<PUBLISHER_ID>'></iframe>"
                   }
-                }
+                },
+                "responsive": { "aspectRatio": "fluid" },
               },
               "behavior":{
                   "pause":{
